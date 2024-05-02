@@ -25,3 +25,10 @@ export type Action =
     | ActionTemplate<'check'>
     | ActionTemplate<'call'>
     | ActionTemplate<'raise'>;
+
+export type PlayerState = {
+    hand: Card[];
+    chips: number;
+    bet: number;
+    folded: boolean;
+};

@@ -1,4 +1,4 @@
-import { Action, BlindStructure, Card, Stage } from './types';
+import { Action, BlindStructure, Card, PlayerState, Stage } from './types';
 
 type UsePokerProps = {
     players: string[];
@@ -49,9 +49,9 @@ type UsePokerReturn = {
      */
     performAction: (action: Action) => void;
     /**
-     * Player hands. If a player has folded, their hand will be empty
+     * Player state. If a player has folded, their hand will be empty
      */
-    playerHands: Record<string, Card[]>;
+    playerState: Record<string, PlayerState>;
 };
 
 export const usePoker = ({}: UsePokerProps): UsePokerReturn => {
@@ -63,7 +63,7 @@ export const usePoker = ({}: UsePokerProps): UsePokerReturn => {
         handNumber: 0,
         highestBet: 0,
         performAction: () => {},
-        playerHands: {},
+        playerState: {},
         pot: 0,
         smallBlindIndex: 0,
         stage: 'preflop',
