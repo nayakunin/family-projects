@@ -1,8 +1,8 @@
 import { produce } from 'immer';
 import { normalize, NormalizedSchema, schema } from 'normalizr';
 
+import { Action } from './actions';
 import { Player } from './player';
-import { Action } from './types';
 
 const player = new schema.Entity(
     'players',
@@ -28,6 +28,15 @@ export class PlayerManager {
 
     getPlayers() {
         return this.players;
+    }
+
+    getPlayerByIndex(index: number) {
+        const playerId = this.players.result[index];
+        if (!playerId) throw new Error('Player not found');
+        const player = this.players.entities.players[playerId];
+        if (!player) throw new Error('Player not found');
+
+        return player;
     }
 
     getNumberOfPlayers() {

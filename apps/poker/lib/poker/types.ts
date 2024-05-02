@@ -1,38 +1,22 @@
-export const suits = ['heart', 'diamond', 'club', 'spade'] as const;
+import { Player } from './player';
+
+export const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'] as const;
+export type Rank = (typeof ranks)[number];
+export const suits = ['H', 'D', 'C', 'S'] as const;
 export type Suit = (typeof suits)[number];
-export const cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] as const;
-export type Card = (typeof cards)[number];
+export type Card = { rank: Rank; suit: Suit };
+export const stages = ['preflop', 'flop', 'turn', 'river', 'showdown'] as const;
+export type Stage = (typeof stages)[number];
+export const gameStates = ['waiting', 'playing', 'completed'] as const;
+export type GameState = (typeof gameStates)[number];
 
-export type DeckItem = {
-    suit: Suit;
-    card: Card;
+export type FrontendGameState = {
+    players: Player[];
+    communityCards: Card[];
+    pot: number;
+    round: Stage;
+    activePlayerIndex: number;
+    highestBet: number;
+    gameState: GameState;
+    handNumber: number;
 };
-
-type CheckAction = {
-    type: 'check';
-};
-
-type BetAction = {
-    type: 'bet';
-    amount: number;
-};
-
-type FoldAction = {
-    type: 'fold';
-};
-
-type RaiseAction = {
-    type: 'raise';
-    amount: number;
-};
-
-type CallAction = {
-    type: 'call';
-    amount: number;
-};
-
-export type Action = CheckAction | BetAction | FoldAction | RaiseAction | CallAction;
-export type ActionHistory = Action[];
-
-export const round = ['preflop', 'flop', 'turn', 'river'] as const;
-export type Round = (typeof round)[number];

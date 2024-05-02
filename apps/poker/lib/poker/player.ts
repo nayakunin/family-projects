@@ -1,36 +1,20 @@
-import { DeckItem } from './types';
-
 export class Player {
-    private name: string;
-    private chips: number;
-    private hand?: DeckItem[];
+    constructor(
+        public id: string,
+        public name: string,
+        public chips: number,
+        public currentBet: number = 0,
+    ) {}
 
-    constructor(name: string, chips: number) {
-        this.name = name;
-        this.chips = chips;
-    }
-
-    getName() {
-        return this.name;
-    }
-
-    getChips() {
-        return this.chips;
-    }
-
-    addChips(amount: number) {
-        this.chips += amount;
-    }
-
-    removeChips(amount: number) {
+    placeBet(amount: number): void {
+        if (amount > this.chips) {
+            throw new Error('Not enough chips.');
+        }
         this.chips -= amount;
+        this.currentBet += amount;
     }
 
-    getHand() {
-        return this.hand;
-    }
-
-    setHand(hand: DeckItem[]) {
-        this.hand = hand;
+    resetBet(): void {
+        this.currentBet = 0;
     }
 }
