@@ -17,8 +17,8 @@ export const fullnessOptions = ['low', 'medium', 'high'] as const;
 export type FullnessOption = (typeof fullnessOptions)[number];
 export const fullnessEnum = pgEnum('fullness', fullnessOptions);
 
-export const recipies = pgTable(
-    'recipies',
+export const recipes = pgTable(
+    'recipes',
     {
         id: serial('id').primaryKey(),
         title: varchar('title', { length: 256 }).notNull(),
@@ -60,61 +60,61 @@ export const cuisines = pgTable(
     }),
 );
 
-export const recipiesToingredients = pgTable(
-    'recipies_to_ingredients',
+export const recipesToingredients = pgTable(
+    'recipes_to_ingredients',
     {
-        recipyId: serial('recipy_id')
+        recipeId: serial('recipe_id')
             .notNull()
-            .references(() => recipies.id),
+            .references(() => recipes.id),
         ingredientId: serial('ingredient_id')
             .notNull()
             .references(() => ingredients.id),
     },
     (t) => ({
-        pk: primaryKey({ columns: [t.recipyId, t.ingredientId] }),
+        pk: primaryKey({ columns: [t.recipeId, t.ingredientId] }),
     }),
 );
 
-export const recipiesToCuisines = pgTable(
-    'recipies_to_cuisines',
+export const recipesToCuisines = pgTable(
+    'recipes_to_cuisines',
     {
-        recipyId: serial('recipy_id')
+        recipeId: serial('recipe_id')
             .notNull()
-            .references(() => recipies.id),
+            .references(() => recipes.id),
         cuisineId: serial('cuisine_id')
             .notNull()
             .references(() => cuisines.id),
     },
     (t) => ({
-        pk: primaryKey({ columns: [t.recipyId, t.cuisineId] }),
+        pk: primaryKey({ columns: [t.recipeId, t.cuisineId] }),
     }),
 );
 
-export const usersRelations = relations(recipies, ({ many }) => ({
-    recipiesToingredients: many(recipiesToingredients, {
-        relationName: 'recipyToingredients',
+export const recipesRelations = relations(recipes, ({ many }) => ({
+    recipesToingredients: many(recipesToingredients, {
+        relationName: 'recipeToingredients',
     }),
-    recipiesToCuisines: many(recipiesToCuisines, {
-        relationName: 'recipyToCuisines',
+    recipesToCuisines: many(recipesToCuisines, {
+        relationName: 'recipeToCuisines',
     }),
 }));
 
 export const cuisineRelations = relations(cuisines, ({ many }) => ({
-    recipiesToCuisines: many(recipiesToCuisines, {
-        relationName: 'recipyToCuisines',
+    recipesToCuisines: many(recipesToCuisines, {
+        relationName: 'recipeToCuisines',
     }),
 }));
 
 export const ingredientsRelations = relations(ingredients, ({ many }) => ({
-    recipiesToingredients: many(recipiesToingredients, {
-        relationName: 'recipyToingredients',
+    recipesToingredients: many(recipesToingredients, {
+        relationName: 'recipeToingredients',
     }),
 }));
 
-export const insertRecipySchema = createInsertSchema(recipies);
-export const selectRecipySchema = createSelectSchema(recipies);
-export type NewRecipy = z.infer<typeof insertRecipySchema>;
-export type Recipy = z.infer<typeof selectRecipySchema>;
+export const insertRecipeSchema = createInsertSchema(recipes);
+export const selectRecipeSchema = createSelectSchema(recipes);
+export type NewRecipe = z.infer<typeof insertRecipeSchema>;
+export type Recipe = z.infer<typeof selectRecipeSchema>;
 
 export const insertingredientSchema = createInsertSchema(ingredients);
 export const selectingredientSchema = createSelectSchema(ingredients);
@@ -126,12 +126,12 @@ export const selectCuisineSchema = createSelectSchema(cuisines);
 export type NewCuisine = z.infer<typeof insertCuisineSchema>;
 export type Cuisine = z.infer<typeof selectCuisineSchema>;
 
-export const insertRecipyToingredientSchema = createInsertSchema(recipiesToingredients);
-export const selectRecipyToingredientSchema = createSelectSchema(recipiesToingredients);
-export type NewRecipyToingredient = z.infer<typeof insertRecipyToingredientSchema>;
-export type RecipyToingredient = z.infer<typeof selectRecipyToingredientSchema>;
+export const insertRecipeToingredientSchema = createInsertSchema(recipesToingredients);
+export const selectRecipeToingredientSchema = createSelectSchema(recipesToingredients);
+export type NewRecipeToingredient = z.infer<typeof insertRecipeToingredientSchema>;
+export type RecipeToingredient = z.infer<typeof selectRecipeToingredientSchema>;
 
-export const insertRecipyToCuisineSchema = createInsertSchema(recipiesToCuisines);
-export const selectRecipyToCuisineSchema = createSelectSchema(recipiesToCuisines);
-export type NewRecipyToCuisine = z.infer<typeof insertRecipyToCuisineSchema>;
-export type RecipyToCuisine = z.infer<typeof selectRecipyToCuisineSchema>;
+export const insertRecipeToCuisineSchema = createInsertSchema(recipesToCuisines);
+export const selectRecipeToCuisineSchema = createSelectSchema(recipesToCuisines);
+export type NewRecipeToCuisine = z.infer<typeof insertRecipeToCuisineSchema>;
+export type RecipeToCuisine = z.infer<typeof selectRecipeToCuisineSchema>;

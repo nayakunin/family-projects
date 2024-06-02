@@ -14,19 +14,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { fullnessOptions, insertRecipySchema } from '@/schema';
+import { fullnessOptions, insertRecipeSchema } from '@/schema';
 import { getCuisines, getIngredients } from '@/server/actions';
 
-const newRecipySchema = insertRecipySchema.extend({
+const newRecipeSchema = insertRecipeSchema.extend({
     ingredients: z.array(z.object({ label: z.string(), value: z.number() })),
     cuisines: z.array(z.object({ label: z.string(), value: z.number() })),
 });
 
-type NewRecipy = z.infer<typeof newRecipySchema>;
+type NewRecipe = z.infer<typeof newRecipeSchema>;
 
 export default function Create() {
-    const form = useForm<NewRecipy>({
-        resolver: zodResolver(newRecipySchema),
+    const form = useForm<NewRecipe>({
+        resolver: zodResolver(newRecipeSchema),
         defaultValues: {
             title: '',
             calories: 0,
