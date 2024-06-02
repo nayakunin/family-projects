@@ -1,5 +1,5 @@
 {
-    "id": "cb434ef0-0d84-4137-8f71-51ed89e2154f",
+    "id": "4486a0b3-442b-411a-ac02-5420a643bba3",
     "prevId": "00000000-0000-0000-0000-000000000000",
     "version": "6",
     "dialect": "postgresql",
@@ -18,7 +18,7 @@
                     "name": "label",
                     "type": "varchar(256)",
                     "primaryKey": false,
-                    "notNull": false
+                    "notNull": true
                 },
                 "created_at": {
                     "name": "created_at",
@@ -46,8 +46,8 @@
             "compositePrimaryKeys": {},
             "uniqueConstraints": {}
         },
-        "public.ingridients": {
-            "name": "ingridients",
+        "public.ingredients": {
+            "name": "ingredients",
             "schema": "",
             "columns": {
                 "id": {
@@ -60,7 +60,7 @@
                     "name": "label",
                     "type": "varchar(256)",
                     "primaryKey": false,
-                    "notNull": false
+                    "notNull": true
                 },
                 "created_at": {
                     "name": "created_at",
@@ -78,8 +78,8 @@
                 }
             },
             "indexes": {
-                "ingridient_label_index": {
-                    "name": "ingridient_label_index",
+                "ingredient_label_index": {
+                    "name": "ingredient_label_index",
                     "columns": ["label"],
                     "isUnique": true
                 }
@@ -116,7 +116,8 @@
                     "type": "fullness",
                     "typeSchema": "public",
                     "primaryKey": false,
-                    "notNull": false
+                    "notNull": true,
+                    "default": "'medium'"
                 },
                 "created_at": {
                     "name": "created_at",
@@ -142,7 +143,8 @@
                     "name": "content",
                     "type": "text",
                     "primaryKey": false,
-                    "notNull": false
+                    "notNull": true,
+                    "default": "''"
                 }
             },
             "indexes": {
@@ -202,8 +204,8 @@
             },
             "uniqueConstraints": {}
         },
-        "public.recipies_to_ingridients": {
-            "name": "recipies_to_ingridients",
+        "public.recipies_to_ingredients": {
+            "name": "recipies_to_ingredients",
             "schema": "",
             "columns": {
                 "recipy_id": {
@@ -212,8 +214,8 @@
                     "primaryKey": false,
                     "notNull": true
                 },
-                "ingridient_id": {
-                    "name": "ingridient_id",
+                "ingredient_id": {
+                    "name": "ingredient_id",
                     "type": "serial",
                     "primaryKey": false,
                     "notNull": true
@@ -221,29 +223,29 @@
             },
             "indexes": {},
             "foreignKeys": {
-                "recipies_to_ingridients_recipy_id_recipies_id_fk": {
-                    "name": "recipies_to_ingridients_recipy_id_recipies_id_fk",
-                    "tableFrom": "recipies_to_ingridients",
+                "recipies_to_ingredients_recipy_id_recipies_id_fk": {
+                    "name": "recipies_to_ingredients_recipy_id_recipies_id_fk",
+                    "tableFrom": "recipies_to_ingredients",
                     "tableTo": "recipies",
                     "columnsFrom": ["recipy_id"],
                     "columnsTo": ["id"],
                     "onDelete": "no action",
                     "onUpdate": "no action"
                 },
-                "recipies_to_ingridients_ingridient_id_ingridients_id_fk": {
-                    "name": "recipies_to_ingridients_ingridient_id_ingridients_id_fk",
-                    "tableFrom": "recipies_to_ingridients",
-                    "tableTo": "ingridients",
-                    "columnsFrom": ["ingridient_id"],
+                "recipies_to_ingredients_ingredient_id_ingredients_id_fk": {
+                    "name": "recipies_to_ingredients_ingredient_id_ingredients_id_fk",
+                    "tableFrom": "recipies_to_ingredients",
+                    "tableTo": "ingredients",
+                    "columnsFrom": ["ingredient_id"],
                     "columnsTo": ["id"],
                     "onDelete": "no action",
                     "onUpdate": "no action"
                 }
             },
             "compositePrimaryKeys": {
-                "recipies_to_ingridients_recipy_id_ingridient_id_pk": {
-                    "name": "recipies_to_ingridients_recipy_id_ingridient_id_pk",
-                    "columns": ["recipy_id", "ingridient_id"]
+                "recipies_to_ingredients_recipy_id_ingredient_id_pk": {
+                    "name": "recipies_to_ingredients_recipy_id_ingredient_id_pk",
+                    "columns": ["recipy_id", "ingredient_id"]
                 }
             },
             "uniqueConstraints": {}
