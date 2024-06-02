@@ -42,5 +42,6 @@ module.exports = {
         'import/first': 'error',
         'import/newline-after-import': 'error',
         'import/no-duplicates': 'error',
+        'turbo/no-undeclared-env-vars': 'off',
     },
 };

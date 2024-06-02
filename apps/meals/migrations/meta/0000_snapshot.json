@@ -1,0 +1,265 @@
+{
+    "id": "cb434ef0-0d84-4137-8f71-51ed89e2154f",
+    "prevId": "00000000-0000-0000-0000-000000000000",
+    "version": "6",
+    "dialect": "postgresql",
+    "tables": {
+        "public.cuisines": {
+            "name": "cuisines",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "label": {
+                    "name": "label",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {
+                "cuisine_label_index": {
+                    "name": "cuisine_label_index",
+                    "columns": ["label"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        },
+        "public.ingridients": {
+            "name": "ingridients",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "label": {
+                    "name": "label",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {
+                "ingridient_label_index": {
+                    "name": "ingridient_label_index",
+                    "columns": ["label"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        },
+        "public.recipies": {
+            "name": "recipies",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "title": {
+                    "name": "title",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "calories": {
+                    "name": "calories",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "fullness": {
+                    "name": "fullness",
+                    "type": "fullness",
+                    "typeSchema": "public",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "hero_picture_url": {
+                    "name": "hero_picture_url",
+                    "type": "varchar(256)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "content": {
+                    "name": "content",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {
+                "title_index": {
+                    "name": "title_index",
+                    "columns": ["title"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        },
+        "public.recipies_to_cuisines": {
+            "name": "recipies_to_cuisines",
+            "schema": "",
+            "columns": {
+                "recipy_id": {
+                    "name": "recipy_id",
+                    "type": "serial",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "cuisine_id": {
+                    "name": "cuisine_id",
+                    "type": "serial",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "recipies_to_cuisines_recipy_id_recipies_id_fk": {
+                    "name": "recipies_to_cuisines_recipy_id_recipies_id_fk",
+                    "tableFrom": "recipies_to_cuisines",
+                    "tableTo": "recipies",
+                    "columnsFrom": ["recipy_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "recipies_to_cuisines_cuisine_id_cuisines_id_fk": {
+                    "name": "recipies_to_cuisines_cuisine_id_cuisines_id_fk",
+                    "tableFrom": "recipies_to_cuisines",
+                    "tableTo": "cuisines",
+                    "columnsFrom": ["cuisine_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "recipies_to_cuisines_recipy_id_cuisine_id_pk": {
+                    "name": "recipies_to_cuisines_recipy_id_cuisine_id_pk",
+                    "columns": ["recipy_id", "cuisine_id"]
+                }
+            },
+            "uniqueConstraints": {}
+        },
+        "public.recipies_to_ingridients": {
+            "name": "recipies_to_ingridients",
+            "schema": "",
+            "columns": {
+                "recipy_id": {
+                    "name": "recipy_id",
+                    "type": "serial",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "ingridient_id": {
+                    "name": "ingridient_id",
+                    "type": "serial",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "recipies_to_ingridients_recipy_id_recipies_id_fk": {
+                    "name": "recipies_to_ingridients_recipy_id_recipies_id_fk",
+                    "tableFrom": "recipies_to_ingridients",
+                    "tableTo": "recipies",
+                    "columnsFrom": ["recipy_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "recipies_to_ingridients_ingridient_id_ingridients_id_fk": {
+                    "name": "recipies_to_ingridients_ingridient_id_ingridients_id_fk",
+                    "tableFrom": "recipies_to_ingridients",
+                    "tableTo": "ingridients",
+                    "columnsFrom": ["ingridient_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "recipies_to_ingridients_recipy_id_ingridient_id_pk": {
+                    "name": "recipies_to_ingridients_recipy_id_ingridient_id_pk",
+                    "columns": ["recipy_id", "ingridient_id"]
+                }
+            },
+            "uniqueConstraints": {}
+        }
+    },
+    "enums": {
+        "public.fullness": {
+            "name": "fullness",
+            "schema": "public",
+            "values": ["low", "medium", "high"]
+        }
+    },
+    "schemas": {},
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
+}
