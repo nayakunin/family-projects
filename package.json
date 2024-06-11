@@ -20,6 +20,7 @@
         "inquirer": "9",
         "lint-staged": "^15.2.2",
         "prettier": "^3.2.5",
+        "prettier-plugin-tailwindcss": "^0.6.2",
         "turbo": "latest"
     },
     "packageManager": "pnpm@9.1.2",

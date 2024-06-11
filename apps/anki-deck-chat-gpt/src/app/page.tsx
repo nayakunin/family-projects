@@ -1,37 +1,139 @@
-import Link from "next/link";
+'use client';
+
+import {
+    Box,
+    Button,
+    Checkbox,
+    Flex,
+    Grid,
+    Select,
+    Text,
+    TextArea,
+    TextField,
+} from '@radix-ui/themes';
+import { useMutation } from '@tanstack/react-query';
+import { Formik } from 'formik';
+
+import { processWordsInBatches } from '@/client/batch';
+import { addDeck, getDeck } from '@/lib/idb';
+import { baseLanguages, targetLanguages } from '@/lib/languages';
+
+type FormValues = {
+    name: string;
+    words: string;
+    base: string;
+    target: string;
+    generateExamples: boolean;
+};
 
 export default function HomePage() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/usage/first-steps"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">First Steps →</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
-            </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/introduction"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">Documentation →</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
-            </div>
-          </Link>
-        </div>
-      </div>
-    </main>
-  );
+    const { data, mutateAsync } = useMutation({
+        mutationKey: ['submit-words'],
+        mutationFn: async ({ words, ...rest }: FormValues) => {
+            const splitWords = words.split(',').map((word) => word.trim());
+
+            await addDeck({
+                ...rest,
+                words: splitWords,
+            });
+
+            return {
+                words: splitWords,
+                ...rest,
+            };
+        },
+    });
+
+    const { mutate: translateWords } = useMutation({
+        mutationKey: ['translate-words'],
+        mutationFn: async () => {
+            if (!data) return;
+
+            await processWordsInBatches(data);
+
+            console.log(await getDeck(data.name));
+        },
+    });
+
+    return (
+        <main>
+            <Grid columns="2" gap="2">
+                <Box p="2">
+                    <Formik<FormValues>
+                        initialValues={{
+                            name: '',
+                            words: '',
+                            base: 'en',
+                            target: 'de',
+                            generateExamples: true,
+                        }}
+                        onSubmit={async (values) => await mutateAsync(values)}
+                    >
+                        {(props) => (
+                            <form onSubmit={props.handleSubmit}>
+                                <TextField.Root
+                                    name="name"
+                                    placeholder="Deck Name"
+                                    value={props.values.name}
+                                    onChange={props.handleChange}
+                                    onBlur={props.handleBlur}
+                                />
+                                <TextArea
+                                    name="words"
+                                    placeholder="comma separated words"
+                                    value={props.values.words}
+                                    onChange={props.handleChange}
+                                    onBlur={props.handleBlur}
+                                />
+                                <Select.Root
+                                    name="base"
+                                    value={props.values.base}
+                                    onValueChange={(value) => props.setFieldValue('base', value)}
+                                >
+                                    <Select.Trigger placeholder="Base language" />
+                                    <Select.Content>
+                                        {baseLanguages.map((lang) => (
+                                            <Select.Item key={lang} value={lang}>
+                                                {lang}
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Content>
+                                </Select.Root>
+                                <Select.Root
+                                    name="target"
+                                    value={props.values.target}
+                                    onValueChange={(value) => props.setFieldValue('target', value)}
+                                >
+                                    <Select.Trigger placeholder="Target language" />
+                                    <Select.Content>
+                                        {targetLanguages.map((lang) => (
+                                            <Select.Item key={lang} value={lang}>
+                                                {lang}
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Content>
+                                </Select.Root>
+                                <Text as="label" size="2">
+                                    <Flex gap="2">
+                                        <Checkbox
+                                            defaultChecked
+                                            checked={props.values.generateExamples}
+                                            onCheckedChange={(value) =>
+                                                props.setFieldValue('generateExamples', value)
+                                            }
+                                        />
+                                        Generate examples
+                                    </Flex>
+                                </Text>
+                                <Button type="submit">Submit</Button>
+                            </form>
+                        )}
+                    </Formik>
+                </Box>
+                <Box p="2">
+                    <Button onClick={() => translateWords()}>Generate</Button>
+                </Box>
+            </Grid>
+        </main>
+    );
 }
