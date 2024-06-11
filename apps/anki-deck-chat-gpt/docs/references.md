@@ -1,0 +1,3 @@
+-   `.apkg` file under the hood is just an sqlite DB https://github.com/ankidroid/Anki-Android/wiki/Database-Structure
+-   you can store `mp3` files in IndexDB https://chatgpt.com/share/94a9746e-008f-4b12-a108-bd0ff5355ca6
+-   `idb` is a good tool to use with IndexDB https://www.npmjs.com/package/idb
