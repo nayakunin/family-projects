@@ -1,5 +1,6 @@
 import '@radix-ui/themes/styles.css';
 import '@/styles/global.css';
+import '@/styles/overrides.css';
 
 import { Reset, Theme } from '@radix-ui/themes';
 import { ThemeProvider } from 'next-themes';
