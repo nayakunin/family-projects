@@ -51,13 +51,13 @@ export default function Create() {
     };
 
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto grid grid-cols-4 gap-2">
             <Form {...form}>
                 <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="col-span-2">
                             <FormLabel>Title</FormLabel>
                             <FormControl>
                                 <Input placeholder="Title" {...field} />
@@ -69,7 +69,7 @@ export default function Create() {
                     control={form.control}
                     name="calories"
                     render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="col-span-1">
                             <FormLabel>Calories</FormLabel>
                             <FormControl>
                                 <Input type="number" placeholder="Calories" {...field} />
@@ -104,7 +104,7 @@ export default function Create() {
                     control={form.control}
                     name="ingredients"
                     render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="col-span-2 col-start-1">
                             <FormLabel>Ingredients</FormLabel>
                             <FormControl>
                                 <Autocomplete
@@ -120,7 +120,7 @@ export default function Create() {
                     control={form.control}
                     name="cuisines"
                     render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="col-span-2">
                             <FormLabel>Cuisines</FormLabel>
                             <FormControl>
                                 <Autocomplete {...field} queryFn={cuisineQueryFn} throttle={500} />
