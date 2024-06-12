@@ -3,10 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
-import Editor from 'react-monaco-editor';
 import { z } from 'zod';
 
 import { Autocomplete } from '@/components/hoc/autocomplete';
+import { ThemedEditor } from '@/components/hoc/themed-editor';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
@@ -140,7 +140,7 @@ export default function Create() {
                     control={form.control}
                     name="content"
                     render={({ field }) => (
-                        <FormItem className="h-full">
+                        <FormItem className="col-span-4 h-full">
                             <FormLabel>Recipe</FormLabel>
                             <FormControl>
                                 <Tabs defaultValue="editor" className="h-full w-full">
@@ -149,16 +149,16 @@ export default function Create() {
                                         <TabsTrigger value="preview">Preview</TabsTrigger>
                                     </TabsList>
                                     <TabsContent value="editor" className="h-full w-full">
-                                        <Editor
-                                            width="100%"
-                                            height="100%"
-                                            language="markdown"
-                                            options={{
-                                                minimap: { enabled: false },
-                                                wordWrap: 'on',
-                                            }}
-                                            {...field}
-                                        />
+                                        <Suspense fallback={<Skeleton className="h-80 w-80" />}>
+                                            <ThemedEditor
+                                                language="markdown"
+                                                options={{
+                                                    minimap: { enabled: false },
+                                                    wordWrap: 'on',
+                                                }}
+                                                {...field}
+                                            />
+                                        </Suspense>
                                     </TabsContent>
                                     <TabsContent value="preview">
                                         <Suspense fallback={<Skeleton className="h-full w-full" />}>

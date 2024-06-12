@@ -20,12 +20,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={inter.className}>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                    disableTransitionOnChange
-                >
+                <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
                     <div className="bg-background relative flex min-h-screen flex-col">
                         <Navbar />
                         <main className="py-6">{children}</main>
