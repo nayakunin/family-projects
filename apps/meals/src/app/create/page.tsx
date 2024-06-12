@@ -1,7 +1,9 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Suspense } from 'react';
 import { useForm } from 'react-hook-form';
+import Editor from 'react-monaco-editor';
 import { z } from 'zod';
 
 import { Autocomplete } from '@/components/hoc/autocomplete';
@@ -14,12 +16,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fullnessOptions, insertRecipeSchema } from '@/schema';
 import { getCuisines, getIngredients } from '@/server/actions';
+
+import { MdPreview } from './md-preview';
 
 const newRecipeSchema = insertRecipeSchema.extend({
     ingredients: z.array(z.object({ label: z.string(), value: z.number() })),
     cuisines: z.array(z.object({ label: z.string(), value: z.number() })),
+    content: z.string(),
 });
 
 type NewRecipe = z.infer<typeof newRecipeSchema>;
@@ -33,6 +40,7 @@ export default function Create() {
             fullness: 'medium',
             ingredients: [],
             cuisines: [],
+            content: '',
         },
     });
 
@@ -124,6 +132,40 @@ export default function Create() {
                             <FormLabel>Cuisines</FormLabel>
                             <FormControl>
                                 <Autocomplete {...field} queryFn={cuisineQueryFn} throttle={500} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                        <FormItem className="h-full">
+                            <FormLabel>Recipe</FormLabel>
+                            <FormControl>
+                                <Tabs defaultValue="editor" className="h-full w-full">
+                                    <TabsList>
+                                        <TabsTrigger value="editor">Editor</TabsTrigger>
+                                        <TabsTrigger value="preview">Preview</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="editor" className="h-full w-full">
+                                        <Editor
+                                            width="100%"
+                                            height="100%"
+                                            language="markdown"
+                                            options={{
+                                                minimap: { enabled: false },
+                                                wordWrap: 'on',
+                                            }}
+                                            {...field}
+                                        />
+                                    </TabsContent>
+                                    <TabsContent value="preview">
+                                        <Suspense fallback={<Skeleton className="h-full w-full" />}>
+                                            <MdPreview content={field.value} />
+                                        </Suspense>
+                                    </TabsContent>
+                                </Tabs>
                             </FormControl>
                         </FormItem>
                     )}
