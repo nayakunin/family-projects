@@ -3,6 +3,9 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
+import { Navbar } from '@/components/hoc/navbar';
+import { ThemeProvider } from '@/theme/provider';
+
 const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -15,9 +18,20 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <body className={inter.className}>
-                <main className="p-2">{children}</main>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <div className="bg-background relative flex min-h-screen flex-col">
+                        <Navbar />
+                        <main className="py-6">{children}</main>
+                        <footer></footer>
+                    </div>
+                </ThemeProvider>
             </body>
         </html>
     );

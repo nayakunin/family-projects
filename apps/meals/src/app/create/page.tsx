@@ -51,78 +51,84 @@ export default function Create() {
     };
 
     return (
-        <Form {...form}>
-            <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Title" {...field} />
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="calories"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Calories</FormLabel>
-                        <FormControl>
-                            <Input type="number" placeholder="Calories" {...field} />
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="fullness"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                            <Select {...field}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Fullness" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {fullnessOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                            {option}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="ingredients"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Ingredients</FormLabel>
-                        <FormControl>
-                            <Autocomplete {...field} queryFn={ingredientQueryFn} throttle={500} />
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="cuisines"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Cuisines</FormLabel>
-                        <FormControl>
-                            <Autocomplete {...field} queryFn={cuisineQueryFn} throttle={500} />
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-        </Form>
+        <div className="container mx-auto">
+            <Form {...form}>
+                <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Title" {...field} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="calories"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Calories</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="Calories" {...field} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="fullness"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Fullness</FormLabel>
+                            <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Fullness" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {fullnessOptions.map((option) => (
+                                            <SelectItem key={option} value={option}>
+                                                {option}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="ingredients"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ingredients</FormLabel>
+                            <FormControl>
+                                <Autocomplete
+                                    {...field}
+                                    queryFn={ingredientQueryFn}
+                                    throttle={500}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="cuisines"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Cuisines</FormLabel>
+                            <FormControl>
+                                <Autocomplete {...field} queryFn={cuisineQueryFn} throttle={500} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+            </Form>
+        </div>
     );
 }
