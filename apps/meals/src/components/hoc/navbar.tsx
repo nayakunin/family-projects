@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { AuthButton } from './auth-button';
+
 type NavbarLinks = {
     href: string;
     label: string;
@@ -19,8 +21,8 @@ const config: NavbarLinks = [
 export const Navbar = () => {
     return (
         <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
-            <div className="container flex h-14 items-center">
-                <nav className="flex items-center gap-4 text-sm lg:gap-6">
+            <div className="container flex h-14 items-center justify-between">
+                <nav className="flex items-center gap-4 text-sm">
                     {config.map(({ href, label }) => (
                         <Link
                             key={href}
@@ -31,6 +33,9 @@ export const Navbar = () => {
                         </Link>
                     ))}
                 </nav>
+                <div className="flex items-center gap-4">
+                    <AuthButton />
+                </div>
             </div>
         </header>
     );
