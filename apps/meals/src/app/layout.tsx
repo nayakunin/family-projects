@@ -23,8 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
                     <div className="bg-background relative flex min-h-screen flex-col">
                         <Navbar />
-                        <main className="py-6">{children}</main>
-                        <footer></footer>
+                        {children}
                     </div>
                 </ThemeProvider>
             </body>
