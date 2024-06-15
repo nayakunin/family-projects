@@ -1,7 +1,18 @@
 'use server';
-import { ilike } from 'drizzle-orm';
+import { and, eq, ilike, inArray } from 'drizzle-orm';
 
-import { ingredients, NewRecipe, recipes, recipesToingredients } from '@/schema';
+import { getServerSession } from '@/auth/helpers';
+import {
+    GroupRole,
+    groups,
+    ingredients,
+    NewRecipe,
+    Permission,
+    recipes,
+    recipesToingredients,
+    userGroupPermissions,
+    userGroups,
+} from '@/schema';
 
 import { db } from './db';
 
@@ -28,10 +39,17 @@ export const createRecipe = async ({
     ingredients: number[];
     cuisines: number[];
 }) => {
+    const session = await getServerSession();
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
     return await db.transaction(async (tx) => {
         const newRecipe = await tx
             .insert(recipes)
             .values({
+                createdBy: session.user.id,
                 title: recipe.title,
                 calories: recipe.calories,
                 fullness: recipe.fullness,
@@ -66,4 +84,133 @@ export const createRecipe = async ({
 
         return id;
     });
+};
+
+export type GroupOptions = {
+    name: string;
+};
+
+export const createGroup = async ({ name }: GroupOptions) => {
+    const session = await getServerSession();
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    return db.insert(groups).values({ name, ownerId: session.user.id }).returning();
+};
+
+export type AssignUserToGroupOptions = {
+    groupId: string;
+    userId: string;
+    role?: GroupRole;
+};
+
+export const assignUserToGroup = async ({ groupId, userId, role }: AssignUserToGroupOptions) => {
+    const session = await getServerSession();
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    return await db.transaction(async (tx) => {
+        const res = await tx
+            .select()
+            .from(groups)
+            .where(and(eq(groups.id, groupId), eq(groups.ownerId, session.user.id)))
+            .limit(1);
+
+        if (!res || res.length === 0) {
+            await tx.rollback();
+            throw new Error('Group not found');
+        }
+
+        await tx.insert(userGroups).values({ groupId, userId, role });
+    });
+};
+
+export type RemoveUserFromGroupOptions = {
+    groupId: string;
+    userId: string;
+};
+
+export const removeUserFromGroup = async ({ groupId, userId }: RemoveUserFromGroupOptions) => {
+    const session = await getServerSession();
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    return await db.transaction(async (tx) => {
+        const res = await tx
+            .select()
+            .from(groups)
+            .where(and(eq(groups.id, groupId), eq(groups.ownerId, session.user.id)))
+            .limit(1);
+
+        if (!res || res.length === 0) {
+            await tx.rollback();
+            throw new Error('Group not found');
+        }
+
+        await tx
+            .delete(userGroups)
+            .where(and(eq(userGroups.groupId, groupId), eq(userGroups.userId, userId)));
+        await tx
+            .delete(userGroupPermissions)
+            .where(
+                and(
+                    eq(userGroupPermissions.userId, userId),
+                    eq(userGroupPermissions.groupId, groupId),
+                ),
+            );
+    });
+};
+
+type UpdatePermissionsOptions = {
+    groupId: string;
+    userId: string;
+    permissions: Permission[];
+};
+
+export const updatePermissions = async ({
+    groupId,
+    userId,
+    permissions,
+}: UpdatePermissionsOptions) => {
+    const session = await getServerSession();
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    return await db.transaction(async (tx) => {
+        const res = await tx
+            .select()
+            .from(groups)
+            .where(and(eq(groups.id, groupId), eq(groups.ownerId, session.user.id)))
+            .limit(1);
+
+        if (!res || res.length === 0) {
+            await tx.rollback();
+            throw new Error('Group not found');
+        }
+
+        await tx
+            .delete(userGroupPermissions)
+            .where(
+                and(
+                    eq(userGroupPermissions.groupId, groupId),
+                    eq(userGroupPermissions.userId, userId),
+                ),
+            );
+
+        await tx
+            .insert(userGroupPermissions)
+            .values(permissions.map((permission) => ({ groupId, userId, permission })));
+    });
+};
+
+export const getGroupUsers = async (groupId: string) => {
+    return db.select().from(userGroups).where(eq(userGroups.groupId, groupId));
 };

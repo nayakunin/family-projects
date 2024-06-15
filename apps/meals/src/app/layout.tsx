@@ -2,8 +2,8 @@ import '@/styles/globals.css';
 
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { getServerSession } from 'next-auth';
 
+import { getServerSession } from '@/auth/helpers';
 import { Navbar } from '@/components/hoc/navbar';
 import { SessionProvider } from '@/lib/session-provider';
 import { ThemeProvider } from '@/theme/provider';
