@@ -3,7 +3,7 @@ import '@/styles/globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
-import { getServerSession } from '@/auth/helpers';
+import { Auth } from '@/auth';
 import { Navbar } from '@/components/hoc/navbar';
 import { SessionProvider } from '@/lib/session-provider';
 import { ThemeProvider } from '@/theme/provider';
@@ -19,7 +19,7 @@ type RootLayoutProps = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    const session = await getServerSession();
+    const session = await Auth.auth();
 
     return (
         <html lang="en" suppressHydrationWarning>
