@@ -1,5 +1,6 @@
 'use server';
 import { and, eq, ilike } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
 
 import { Auth } from '@/auth';
 import {
@@ -43,7 +44,7 @@ export const createRecipe = async ({
     const session = await Auth.auth();
 
     if (!session) {
-        throw new Error('Unauthorized');
+        redirect('/api/auth/signin');
     }
 
     return await db.transaction(async (tx) => {
@@ -111,7 +112,7 @@ export const assignUserToGroup = async ({ groupId, userId, role }: AssignUserToG
     const session = await Auth.auth();
 
     if (!session) {
-        throw new Error('Unauthorized');
+        redirect('/api/auth/signin');
     }
 
     return await db.transaction(async (tx) => {
@@ -139,7 +140,7 @@ export const removeUserFromGroup = async ({ groupId, userId }: RemoveUserFromGro
     const session = await Auth.auth();
 
     if (!session) {
-        throw new Error('Unauthorized');
+        redirect('/api/auth/signin');
     }
 
     return await db.transaction(async (tx) => {
@@ -182,7 +183,7 @@ export const updatePermissions = async ({
     const session = await Auth.auth();
 
     if (!session) {
-        throw new Error('Unauthorized');
+        redirect('/api/auth/signin');
     }
 
     return await db.transaction(async (tx) => {
@@ -220,7 +221,7 @@ export const getCurrentUser = async () => {
     const session = await Auth.auth();
 
     if (!session) {
-        throw new Error('Unauthorized');
+        redirect('/api/auth/signin');
     }
 
     const res = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
