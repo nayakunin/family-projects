@@ -36,10 +36,12 @@ export const createRecipe = async ({
     cuisines,
     ingredients,
     recipe,
+    groupId,
 }: {
     recipe: NewRecipe;
     ingredients: number[];
     cuisines: number[];
+    groupId?: string;
 }) => {
     const session = await Auth.auth();
 
@@ -56,6 +58,7 @@ export const createRecipe = async ({
                 calories: recipe.calories,
                 fullness: recipe.fullness,
                 content: recipe.content,
+                groupId,
             })
             .returning();
 

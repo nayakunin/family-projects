@@ -31,10 +31,13 @@ import {
 import { fullnessOptions, insertRecipeSchema } from '@/schema';
 import { createRecipe, getCuisines, getIngredients } from '@/server/actions';
 
+import { getGroups } from './actions';
+
 const newRecipeSchema = insertRecipeSchema.extend({
     calories: z.string(),
     ingredients: z.array(z.object({ label: z.string(), value: z.number() })),
     cuisines: z.array(z.object({ label: z.string(), value: z.number() })),
+    groupId: z.string().optional(),
 });
 
 export type NewRecipe = z.infer<typeof newRecipeSchema>;
@@ -54,8 +57,11 @@ export default function Create() {
             ingredients: [],
             cuisines: [],
             content: '',
+            groupId: undefined,
         },
     });
+
+    const { data: userGroups } = useRequest(getGroups);
 
     const submitReq = useRequest(createRecipe, {
         manual: true,
@@ -209,6 +215,38 @@ export default function Create() {
                                     </FormItem>
                                 )}
                             />
+                            {userGroups && !!userGroups.length && (
+                                <FormField
+                                    control={form.control}
+                                    name="groupId"
+                                    render={({ field }) => (
+                                        <FormItem className="col-span-4 -mt-2">
+                                            <FormLabel>Group</FormLabel>
+                                            <FormControl>
+                                                <Select>
+                                                    <SelectTrigger>
+                                                        <SelectValue
+                                                            placeholder="Group"
+                                                            {...field}
+                                                        />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {userGroups.map((group) => (
+                                                            <SelectItem
+                                                                key={group.id}
+                                                                value={group.id}
+                                                            >
+                                                                {group.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
                         </div>
                     </div>
 
