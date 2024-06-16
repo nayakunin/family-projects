@@ -13,8 +13,8 @@ const config: NavbarLinks = [
         label: 'Home',
     },
     {
-        href: '/create',
-        label: 'Create',
+        href: '/recipes/create',
+        label: 'Create a Recipe',
     },
 ];
 
