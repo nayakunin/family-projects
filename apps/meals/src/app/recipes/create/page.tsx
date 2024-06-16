@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRequest } from 'ahooks';
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ElementRef, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
