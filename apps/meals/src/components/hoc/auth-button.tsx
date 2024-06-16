@@ -15,11 +15,7 @@ import {
 } from '../ui/dropdown-menu';
 
 export const AuthButton = () => {
-    const { data: session, status } = useSession();
-
-    console.log(status);
-
-    if (status === 'loading') return null;
+    const { data: session } = useSession();
 
     if (session) {
         return (

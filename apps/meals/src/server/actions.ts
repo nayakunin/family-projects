@@ -1,7 +1,7 @@
 'use server';
-import { and, eq, ilike, inArray } from 'drizzle-orm';
+import { and, eq, ilike } from 'drizzle-orm';
 
-import { getServerSession } from '@/auth/helpers';
+import { Auth } from '@/auth';
 import {
     GroupRole,
     groups,
@@ -12,6 +12,7 @@ import {
     recipesToingredients,
     userGroupPermissions,
     userGroups,
+    users,
 } from '@/schema';
 
 import { db } from './db';
@@ -39,7 +40,7 @@ export const createRecipe = async ({
     ingredients: number[];
     cuisines: number[];
 }) => {
-    const session = await getServerSession();
+    const session = await Auth.auth();
 
     if (!session) {
         throw new Error('Unauthorized');
@@ -91,7 +92,7 @@ export type GroupOptions = {
 };
 
 export const createGroup = async ({ name }: GroupOptions) => {
-    const session = await getServerSession();
+    const session = await Auth.auth();
 
     if (!session) {
         throw new Error('Unauthorized');
@@ -107,7 +108,7 @@ export type AssignUserToGroupOptions = {
 };
 
 export const assignUserToGroup = async ({ groupId, userId, role }: AssignUserToGroupOptions) => {
-    const session = await getServerSession();
+    const session = await Auth.auth();
 
     if (!session) {
         throw new Error('Unauthorized');
@@ -135,7 +136,7 @@ export type RemoveUserFromGroupOptions = {
 };
 
 export const removeUserFromGroup = async ({ groupId, userId }: RemoveUserFromGroupOptions) => {
-    const session = await getServerSession();
+    const session = await Auth.auth();
 
     if (!session) {
         throw new Error('Unauthorized');
@@ -178,7 +179,7 @@ export const updatePermissions = async ({
     userId,
     permissions,
 }: UpdatePermissionsOptions) => {
-    const session = await getServerSession();
+    const session = await Auth.auth();
 
     if (!session) {
         throw new Error('Unauthorized');
@@ -213,4 +214,20 @@ export const updatePermissions = async ({
 
 export const getGroupUsers = async (groupId: string) => {
     return db.select().from(userGroups).where(eq(userGroups.groupId, groupId));
+};
+
+export const getCurrentUser = async () => {
+    const session = await Auth.auth();
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    const res = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+
+    if (!res || res.length === 0 || !res[0]) {
+        throw new Error('User not found');
+    }
+
+    return res[0];
 };

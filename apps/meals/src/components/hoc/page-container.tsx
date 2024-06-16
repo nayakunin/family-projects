@@ -5,7 +5,7 @@ export const PageContainer = ({
     className,
 }: {
     children: React.ReactNode;
-    className: string;
+    className?: string;
 }) => {
     return <main className={cn('container mx-auto py-6', className)}>{children}</main>;
 };

@@ -1,19 +1,18 @@
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import nextAuth, { AuthOptions } from 'next-auth';
-import { Adapter } from 'next-auth/adapters';
+import NextAuth, { NextAuthConfig } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 
 import { env } from '@/env';
 import { accounts, sessions, users, verificationTokens } from '@/schema';
 import { db } from '@/server/db';
 
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthConfig = {
     adapter: DrizzleAdapter(db, {
         usersTable: users,
         accountsTable: accounts,
         sessionsTable: sessions,
         verificationTokensTable: verificationTokens,
-    }) as Adapter, // FIX: See issue https://github.com/nextauthjs/next-auth/issues/9493
+    }),
     providers: [
         GitHubProvider({
             clientId: env.GITHUB_CLIENT_ID,
@@ -21,9 +20,15 @@ export const authOptions: AuthOptions = {
         }),
     ],
     callbacks: {
-        async session({ session, token }) {
-            session.user.id = token.id as string;
-            return session;
+        session({ session, user }) {
+            session.user.id = user.id as string;
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: user.id as string,
+                },
+            };
         },
     },
     session: {
@@ -31,4 +36,4 @@ export const authOptions: AuthOptions = {
     },
 };
 
-export const { handlers, auth, signIn, signOut } = nextAuth(authOptions);
+export const Auth = NextAuth(authOptions);
