@@ -13,6 +13,10 @@ const sidebarNavItems = [
         href: '/profile/account',
     },
     {
+        title: 'Groups',
+        href: '/profile/groups',
+    },
+    {
         title: 'Appearance',
         href: '/profile/appearance',
     },

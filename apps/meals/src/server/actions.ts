@@ -111,7 +111,7 @@ export type AssignUserToGroupOptions = {
     role?: GroupRole;
 };
 
-export const assignUserToGroup = async ({ groupId, userId, role }: AssignUserToGroupOptions) => {
+export const assignUsersToGroup = async ({ groupId, userId, role }: AssignUserToGroupOptions) => {
     const session = await Auth.auth();
 
     if (!session) {
