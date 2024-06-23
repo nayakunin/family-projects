@@ -2,15 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRequest } from 'ahooks';
+import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { ElementRef, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Autocomplete } from '@/components/hoc/autocomplete';
 import { PageContainer } from '@/components/hoc/page-container';
 import { PageHeader } from '@/components/hoc/page-header';
-import { ThemedEditor } from '@/components/hoc/themed-editor';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -28,42 +27,93 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { fullnessOptions, insertRecipeSchema } from '@/schema';
-import { createRecipe, getCuisines, getIngredients } from '@/server/actions';
+import { Textarea } from '@/components/ui/textarea';
+import { fullnessOptions } from '@/schema';
+import { getCuisines, getIngredients } from '@/server/actions';
 
-import { getGroups } from './actions';
+import { createRecipe, getGroups } from './actions';
 
-const newRecipeSchema = insertRecipeSchema.extend({
+const newRecipeSchema = z.object({
+    title: z.string(),
+    content: z.string(),
+    fullness: z.enum(fullnessOptions),
     calories: z.string(),
-    ingredients: z.array(z.number()),
-    cuisines: z.array(z.number()),
-    groupId: z.string().optional(),
+    ingredients: z.object({
+        query: z.string(),
+        open: z.boolean(),
+        selected: z.array(z.number()),
+    }),
+    cuisines: z.object({
+        query: z.string(),
+        open: z.boolean(),
+        selected: z.array(z.number()),
+    }),
+    group: z.object({
+        open: z.boolean(),
+        id: z.string().optional(),
+    }),
 });
 
-export type NewRecipe = z.infer<typeof newRecipeSchema>;
+export type FormValues = z.infer<typeof newRecipeSchema>;
 
 export default function Create() {
     const router = useRouter();
-    const editorFormItemRef = useRef<ElementRef<'div'>>(null);
-    const editorContainerRef = useRef<ElementRef<'div'>>(null);
-    const [editorHeight, setEditorHeight] = useState(450);
 
-    const form = useForm<NewRecipe>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(newRecipeSchema),
+        mode: 'onBlur',
         defaultValues: {
             title: '',
             calories: '0',
             fullness: 'medium',
-            ingredients: [],
-            cuisines: [],
+            ingredients: {
+                query: '',
+                open: false,
+                selected: [],
+            },
+            cuisines: {
+                query: '',
+                open: false,
+                selected: [],
+            },
             content: '',
-            groupId: undefined,
+            group: {
+                open: false,
+            },
         },
     });
 
-    const { data: userGroups } = useRequest(getGroups);
+    const [ingredientsQuery, cuisinesQuery] = form.watch(['ingredients.query', 'cuisines.query']);
 
-    const submitReq = useRequest(createRecipe, {
+    const { data: userGroups = [] } = useRequest(getGroups);
+
+    const { data: ingredients = [], loading: ingredientsLoading } = useRequest(
+        async () => {
+            return (await getIngredients(ingredientsQuery)).map((ingredient) => ({
+                label: ingredient.label,
+                value: ingredient.id,
+            }));
+        },
+        {
+            refreshDeps: [ingredientsQuery],
+            ready: !!ingredientsQuery,
+        },
+    );
+
+    const { data: cuisines = [], loading: cuisinesLoading } = useRequest(
+        async () => {
+            return (await getCuisines(cuisinesQuery)).map((ingredient) => ({
+                label: ingredient.label,
+                value: ingredient.id,
+            }));
+        },
+        {
+            refreshDeps: [cuisinesQuery],
+            ready: !!cuisinesQuery,
+        },
+    );
+
+    const submitReq = useRequest((values: FormValues) => createRecipe(values), {
         manual: true,
         onSuccess: (id) => {
             if (!id) return;
@@ -71,56 +121,85 @@ export default function Create() {
         },
     });
 
-    const ingredientQueryFn = async (query: string) => {
-        return (await getIngredients(query)).map((ingredient) => ({
-            label: ingredient.label,
-            value: ingredient.id,
-        }));
-    };
-
-    const cuisineQueryFn = async (query: string) => {
-        return (await getCuisines(query)).map((cuisine) => ({
-            label: cuisine.label,
-            value: cuisine.id,
-        }));
-    };
-
-    const handleSubmit = ({ cuisines, ingredients, calories, ...rest }: NewRecipe) => {
-        submitReq.run({
-            recipe: {
-                ...rest,
-                calories: Number(calories),
-            },
-            cuisines,
-            ingredients,
-        });
-    };
-
-    useEffect(() => {
-        if (editorFormItemRef.current && editorContainerRef.current) {
-            setEditorHeight(
-                editorFormItemRef.current.clientHeight -
-                    (editorContainerRef.current.offsetTop - editorFormItemRef.current.offsetTop),
-            );
-        }
-    }, []);
-
     return (
-        <PageContainer className="flex flex-grow flex-col">
-            <PageHeader
-                title="Create a Recipe"
-                onBack={() => router.push('/')}
-                extra={
-                    <Button size="sm" form="recipe" type="submit" loading={submitReq.loading}>
-                        Submit
-                    </Button>
-                }
-            />
-            <Form {...form}>
+        <Form {...form}>
+            <PageContainer className="flex flex-grow flex-col">
+                <PageHeader
+                    title={
+                        <div className="flex items-baseline gap-4">
+                            <span>Create a Recipe</span>
+                            <FormField
+                                control={form.control}
+                                name="group"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            {!field.value.open ? (
+                                                <Button
+                                                    variant="link"
+                                                    size="sm"
+                                                    className="h-10"
+                                                    onClick={() =>
+                                                        field.onChange({
+                                                            ...field.value,
+                                                            open: true,
+                                                        })
+                                                    }
+                                                >
+                                                    Add to a group
+                                                </Button>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <Select
+                                                        value={field.value.id}
+                                                        onValueChange={(val) =>
+                                                            field.onChange({
+                                                                ...field.value,
+                                                                id: val,
+                                                            })
+                                                        }
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a Group" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {userGroups.map((group) => (
+                                                                <SelectItem
+                                                                    key={group.id}
+                                                                    value={group.id}
+                                                                >
+                                                                    {group.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <X
+                                                        className="text-primary-500 hover:text-primary-600 h-4 w-4 cursor-pointer"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            field.onChange({ open: false });
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    }
+                    onBack={() => router.push('/')}
+                    extra={
+                        <Button size="sm" form="recipe" type="submit" loading={submitReq.loading}>
+                            Submit
+                        </Button>
+                    }
+                />
                 <form
                     id="recipe"
                     className="flex flex-grow gap-4"
-                    onSubmit={form.handleSubmit(handleSubmit)}
+                    onSubmit={form.handleSubmit(submitReq.runAsync)}
                 >
                     <div>
                         <div className="grid grid-cols-4 gap-2">
@@ -185,14 +264,35 @@ export default function Create() {
                                 control={form.control}
                                 name="ingredients"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2">
+                                    <FormItem className="col-span-4">
                                         <FormLabel>Ingredients</FormLabel>
                                         <FormControl>
-                                            <Autocomplete
-                                                {...field}
-                                                queryFn={ingredientQueryFn}
-                                                throttle={500}
-                                            />
+                                            <>
+                                                <Autocomplete
+                                                    placeholder="Ingredients"
+                                                    value={field.value.query}
+                                                    open={field.value.open}
+                                                    options={ingredients}
+                                                    loading={ingredientsLoading}
+                                                    onChange={(query) =>
+                                                        field.onChange({ ...field.value, query })
+                                                    }
+                                                    onOpenChange={(open) =>
+                                                        field.onChange({ ...field.value, open })
+                                                    }
+                                                    onClick={(id) => {
+                                                        field.onChange({
+                                                            ...field.value,
+                                                            selected: [...field.value.selected, id],
+                                                        });
+                                                    }}
+                                                />
+                                                <div>
+                                                    {field.value.selected.map((id) => (
+                                                        <div key={id}>{id}</div>
+                                                    ))}
+                                                </div>
+                                            </>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -202,51 +302,40 @@ export default function Create() {
                                 control={form.control}
                                 name="cuisines"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2">
+                                    <FormItem className="col-span-4">
                                         <FormLabel>Cuisines</FormLabel>
                                         <FormControl>
-                                            <Autocomplete
-                                                {...field}
-                                                queryFn={cuisineQueryFn}
-                                                throttle={500}
-                                            />
+                                            <>
+                                                <Autocomplete
+                                                    placeholder="Cuisines"
+                                                    value={field.value.query}
+                                                    open={field.value.open}
+                                                    options={cuisines}
+                                                    loading={cuisinesLoading}
+                                                    onChange={(query) =>
+                                                        field.onChange({ ...field.value, query })
+                                                    }
+                                                    onOpenChange={(open) =>
+                                                        field.onChange({ ...field.value, open })
+                                                    }
+                                                    onClick={(id) => {
+                                                        field.onChange({
+                                                            ...field.value,
+                                                            selected: [...field.value.selected, id],
+                                                        });
+                                                    }}
+                                                />
+                                                <div>
+                                                    {field.value.selected.map((id) => (
+                                                        <div key={id}>{id}</div>
+                                                    ))}
+                                                </div>
+                                            </>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                            {userGroups && !!userGroups.length && (
-                                <FormField
-                                    control={form.control}
-                                    name="groupId"
-                                    render={({ field }) => (
-                                        <FormItem className="col-span-4 -mt-2">
-                                            <FormLabel>Group</FormLabel>
-                                            <FormControl>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue
-                                                            placeholder="Group"
-                                                            {...field}
-                                                        />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {userGroups.map((group) => (
-                                                            <SelectItem
-                                                                key={group.id}
-                                                                value={group.id}
-                                                            >
-                                                                {group.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
                         </div>
                     </div>
 
@@ -255,29 +344,21 @@ export default function Create() {
                             control={form.control}
                             name="content"
                             render={({ field }) => (
-                                <FormItem className="col-span-4 h-full" ref={editorFormItemRef}>
+                                <FormItem className="col-span-4 h-full">
                                     <FormLabel>Recipe</FormLabel>
                                     <FormControl>
-                                        <div ref={editorContainerRef}>
-                                            <ThemedEditor
-                                                className="border-input ring-offset-background rounded-md border py-4 pr-4"
-                                                height={`${editorHeight}px`}
-                                                language="markdown"
-                                                options={{
-                                                    minimap: { enabled: false },
-                                                    wordWrap: 'on',
-                                                    automaticLayout: true,
-                                                }}
-                                                {...field}
-                                            />
-                                        </div>
+                                        <Textarea
+                                            placeholder="Recipe"
+                                            className="min-h-80"
+                                            {...field}
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
                     </div>
                 </form>
-            </Form>
-        </PageContainer>
+            </PageContainer>
+        </Form>
     );
 }

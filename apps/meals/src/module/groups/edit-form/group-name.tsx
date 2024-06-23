@@ -9,12 +9,13 @@ import { FormValues } from '../shared/schema';
 type GroupNameProps = {
     field: ControllerRenderProps<FormValues, 'name'>;
     form: UseFormReturn<FormValues>;
+    defaultValue?: string;
 };
 
-export const GroupName = ({ form, field }: GroupNameProps) => {
+export const GroupName = ({ form, field, defaultValue }: GroupNameProps) => {
     useRequest(() => validateGroupName(field.value), {
         refreshDeps: [field.value],
-        ready: field.value !== '',
+        ready: field.value !== defaultValue,
         onSuccess: (valid) => {
             if (!valid) {
                 form.setError('name', { message: 'Name is already taken' });

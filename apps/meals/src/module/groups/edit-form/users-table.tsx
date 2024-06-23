@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { BadgeX, Ellipsis, Lock } from 'lucide-react';
+import { BadgeX, Ellipsis, Lock, Shield } from 'lucide-react';
 import invariant from 'tiny-invariant';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,10 +25,11 @@ type User = FormValues['users']['selected'][number];
 
 type UsersTableProps = {
     users: User[];
+    currentUserRole: User['role'];
     onChange: (users: User[]) => void;
 };
 
-export const UsersTable = ({ onChange, users }: UsersTableProps) => {
+export const UsersTable = ({ onChange, users, currentUserRole }: UsersTableProps) => {
     const handlePermissionsChange = (id: User['id'], permission: User['permissions'][number]) => {
         onChange(
             produce(users, (draft) => {
@@ -46,6 +47,20 @@ export const UsersTable = ({ onChange, users }: UsersTableProps) => {
 
     const handleRemoveUser = (id: User['id']) => {
         onChange(users.filter((user) => user.id !== id));
+    };
+
+    const handleTransferOwnership = (newOnwerId: User['id']) => {
+        onChange(
+            produce(users, (draft) => {
+                const oldOwner = draft.find((u) => u.role === 'owner');
+                invariant(oldOwner, 'Owner not found');
+                oldOwner.role = 'member';
+
+                const newOwner = draft.find((u) => u.id === newOnwerId);
+                invariant(newOwner, 'User not found');
+                newOwner.role = 'owner';
+            }),
+        );
     };
 
     return (
@@ -103,6 +118,15 @@ export const UsersTable = ({ onChange, users }: UsersTableProps) => {
                                             </DropdownMenuSubContent>
                                         </DropdownMenuPortal>
                                     </DropdownMenuSub>
+                                    <DropdownMenuItem
+                                        disabled={
+                                            user.role === 'owner' && currentUserRole === 'owner'
+                                        }
+                                        onClick={() => handleTransferOwnership(user.id)}
+                                    >
+                                        <Shield className="mr-2 h-4 w-4" />
+                                        Transfer ownership
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem
                                         disabled={user.role === 'owner'}
                                         onClick={() => handleRemoveUser(user.id)}

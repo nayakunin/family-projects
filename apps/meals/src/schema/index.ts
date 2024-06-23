@@ -105,7 +105,7 @@ export type GroupRole = (typeof groupRoles)[number];
 export const groupRoleEnum = pgEnum('groupRole', groupRoles);
 
 export const groups = pgTable(
-    'group',
+    'groups',
     {
         id: text('id')
             .primaryKey()

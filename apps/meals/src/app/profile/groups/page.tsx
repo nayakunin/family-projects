@@ -9,6 +9,7 @@ import CreateGroupForm from '@/module/groups/create-form';
 import { getCurrentUser } from '@/server/actions';
 
 import { getGroups } from './actions';
+import { GroupsTable } from './table';
 
 export default async function Page() {
     const user = await getCurrentUser();
@@ -34,11 +35,5 @@ export default async function Page() {
         );
     }
 
-    return (
-        <ul>
-            {groups.map((group) => (
-                <li key={group.id}>{group.name}</li>
-            ))}
-        </ul>
-    );
+    return <GroupsTable user={user} groups={groups} />;
 }

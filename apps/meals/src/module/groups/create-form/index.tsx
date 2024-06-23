@@ -13,31 +13,13 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { groupRoles, permissions, User } from '@/schema';
+import { User } from '@/schema';
 
+import { FormValues, formValuesSchema } from '../shared/schema';
+import { UsersPicker } from '../shared/users-picker';
 import { saveGroup } from './actions';
 import { GroupName } from './group-name';
-import { UsersPicker } from './users-picker';
 import { UsersTable } from './users-table';
-
-const formValuesSchema = z.object({
-    name: z.string().min(5).max(255),
-    users: z.object({
-        query: z.string(),
-        selected: z.array(
-            z.object({
-                id: z.string(),
-                name: z.string(),
-                role: z.enum(groupRoles),
-                permissions: z.enum(permissions).array(),
-                image: z.string().nullable(),
-                email: z.string(),
-            }),
-        ),
-    }),
-});
-
-export type FormValues = z.infer<typeof formValuesSchema>;
 
 export default function CreateGroupForm({ user }: { user: User }) {
     const form = useForm<FormValues>({
@@ -60,9 +42,20 @@ export default function CreateGroupForm({ user }: { user: User }) {
         },
     });
 
+    const handleSubmit = async (values: FormValues) => {
+        await saveGroup({
+            name: values.name,
+            users: values.users.selected.map((user) => ({
+                id: user.id,
+                role: user.role,
+                permissions: user.permissions,
+            })),
+        });
+    };
+
     return (
         <Form {...form}>
-            <form className="space-y-4" onSubmit={form.handleSubmit(saveGroup)}>
+            <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
                 <FormField
                     control={form.control}
                     name="name"

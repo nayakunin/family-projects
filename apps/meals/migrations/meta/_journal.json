@@ -29,6 +29,13 @@
             "when": 1719050983106,
             "tag": "0003_warm_dagger",
             "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "6",
+            "when": 1719137590260,
+            "tag": "0004_keen_silvermane",
+            "breakpoints": true
         }
     ]
 }

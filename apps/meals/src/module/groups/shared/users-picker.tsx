@@ -1,11 +1,12 @@
 import { useRequest } from 'ahooks';
 import { produce } from 'immer';
+import { useState } from 'react';
 
-import { Autocomplete } from '@/components/hoc/autocomplete2';
+import { Autocomplete } from '@/components/hoc/autocomplete';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-import { FormValues } from '.';
-import { findUsers } from './actions';
+import { findUsers } from '../shared/actions';
+import { FormValues } from './schema';
 
 type Users = FormValues['users'];
 
@@ -32,6 +33,7 @@ const UserOption = ({ user }: UserOptionProps) => (
 );
 
 export const UsersPicker = ({ value, onChange }: UsersPickerProps) => {
+    const [open, setOpen] = useState(false);
     const userOptionsReq = useRequest(
         async () => {
             const result = await findUsers(
@@ -44,11 +46,11 @@ export const UsersPicker = ({ value, onChange }: UsersPickerProps) => {
                 email: user.email,
                 label: user.name,
                 value: user.id,
-                disabled: value.selected.some((selected) => selected.id === user.id),
             }));
         },
         {
-            refreshDeps: [value.query],
+            refreshDeps: [value.query, value.selected, open],
+            ready: open,
         },
     );
 
@@ -74,6 +76,8 @@ export const UsersPicker = ({ value, onChange }: UsersPickerProps) => {
                     role: 'member',
                     permissions: ['read'],
                 });
+
+                userOptionsReq.mutate((prev) => prev?.filter((u) => u.value !== id) || []);
             }),
         );
     };
@@ -95,6 +99,8 @@ export const UsersPicker = ({ value, onChange }: UsersPickerProps) => {
             )}
             onChange={handleQueryChange}
             onClick={handleUserClick}
+            open={open}
+            onOpenChange={setOpen}
         />
     );
 };
