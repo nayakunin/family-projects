@@ -18,11 +18,16 @@ export const users = pgTable('user', {
     id: text('id')
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    name: text('name'),
+    name: text('name').notNull(),
     email: text('email').notNull(),
     emailVerified: timestamp('emailVerified', { mode: 'date' }),
     image: text('image'),
 });
+
+export const insertUserSchema = createInsertSchema(users);
+export const selectUserSchema = createSelectSchema(users);
+export type NewUser = z.infer<typeof insertUserSchema>;
+export type User = z.infer<typeof selectUserSchema>;
 
 export const accounts = pgTable(
     'account',

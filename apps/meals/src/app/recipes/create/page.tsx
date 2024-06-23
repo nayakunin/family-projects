@@ -35,8 +35,8 @@ import { getGroups } from './actions';
 
 const newRecipeSchema = insertRecipeSchema.extend({
     calories: z.string(),
-    ingredients: z.array(z.object({ label: z.string(), value: z.number() })),
-    cuisines: z.array(z.object({ label: z.string(), value: z.number() })),
+    ingredients: z.array(z.number()),
+    cuisines: z.array(z.number()),
     groupId: z.string().optional(),
 });
 
@@ -91,8 +91,8 @@ export default function Create() {
                 ...rest,
                 calories: Number(calories),
             },
-            cuisines: cuisines.map((cuisine) => cuisine.value),
-            ingredients: ingredients.map((ingredient) => ingredient.value),
+            cuisines,
+            ingredients,
         });
     };
 
