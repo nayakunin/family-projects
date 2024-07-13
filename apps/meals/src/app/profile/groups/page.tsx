@@ -35,5 +35,10 @@ export default async function Page() {
         );
     }
 
-    return <GroupsTable user={user} groups={groups} />;
+    return (
+        <>
+            <h2 className="mb-2 text-lg">Groups List</h2>
+            <GroupsTable user={user} groups={groups} />
+        </>
+    );
 }

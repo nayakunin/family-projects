@@ -1,12 +1,27 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
+import rehypeSanitize from 'rehype-sanitize';
+import rehypeStringify from 'rehype-stringify';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import { unified } from 'unified';
 
 import { Auth } from '@/auth';
-import { groups, recipes, recipesToingredients, userGroups } from '@/schema';
+import { groups, recipes, recipesToIngredients, userGroups } from '@/schema';
 import { db } from '@/server/db';
 
-import { FormValues } from './page';
+import { FormValues } from './schema';
+
+export const parseMarkdown = async (content: string) =>
+    String(
+        await unified()
+            .use(remarkParse) // Convert into markdown AST
+            .use(remarkRehype) // Transform to HTML AST
+            .use(rehypeSanitize) // Sanitize HTML input
+            .use(rehypeStringify) // Convert AST into serialized HTML
+            .process(content),
+    );
 
 export const getGroups = async () => {
     const session = await Auth.auth();
@@ -55,16 +70,16 @@ export const createRecipe = async ({
         }
 
         if (ingredients.selected.length) {
-            await tx.insert(recipesToingredients).values(
+            await tx.insert(recipesToIngredients).values(
                 ingredients.selected.map((ingredient) => ({
                     recipeId: id,
-                    ingredientId: ingredient,
+                    ingredientId: ingredient.id,
                 })),
             );
         }
 
         if (cuisines.selected.length) {
-            await tx.insert(recipesToingredients).values(
+            await tx.insert(recipesToIngredients).values(
                 cuisines.selected.map((cuisine) => ({
                     recipeId: id,
                     cuisineId: cuisine,

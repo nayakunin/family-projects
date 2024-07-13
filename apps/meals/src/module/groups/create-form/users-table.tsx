@@ -74,7 +74,7 @@ export const UsersTable = ({ onChange, users }: UsersTableProps) => {
                         </TableCell>
                         <TableCell className="text-end">
                             <DropdownMenu>
-                                <DropdownMenuTrigger>
+                                <DropdownMenuTrigger asChild>
                                     <Button variant="outline" className="rounded-full px-2">
                                         <Ellipsis />
                                     </Button>

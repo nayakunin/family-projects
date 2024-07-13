@@ -12,7 +12,22 @@ const DialogTrigger = DialogPrimitive.Trigger;
 
 const DialogPortal = DialogPrimitive.Portal;
 
-const DialogClose = DialogPrimitive.Close;
+const DialogClose = React.forwardRef<
+    React.ElementRef<typeof DialogPrimitive.Close>,
+    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
+>(({ onClick, ...props }, ref) => (
+    <DialogPrimitive.Close
+        ref={ref}
+        {...props}
+        onClick={(...args) => {
+            onClick?.(...args);
+            setTimeout(() => (document.body.style.pointerEvents = ''), 500);
+        }}
+    >
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+    </DialogPrimitive.Close>
+));
 
 const DialogOverlay = React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Overlay>,

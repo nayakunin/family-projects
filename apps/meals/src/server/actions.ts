@@ -10,7 +10,7 @@ import {
     NewRecipe,
     Permission,
     recipes,
-    recipesToingredients,
+    recipesToIngredients,
     userGroupPermissions,
     userGroups,
     users,
@@ -70,7 +70,7 @@ export const createRecipe = async ({
         }
 
         if (ingredients.length) {
-            await tx.insert(recipesToingredients).values(
+            await tx.insert(recipesToIngredients).values(
                 ingredients.map((ingredient) => ({
                     recipeId: id,
                     ingredientId: ingredient,
@@ -79,7 +79,7 @@ export const createRecipe = async ({
         }
 
         if (cuisines.length) {
-            await tx.insert(recipesToingredients).values(
+            await tx.insert(recipesToIngredients).values(
                 cuisines.map((cuisine) => ({
                     recipeId: id,
                     cuisineId: cuisine,
